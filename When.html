@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="newtask" content="makenew task">
+    <Title>New task page </Title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <a href="What.html">Back</a>
+
+<button id="todayButton">Today</button>
+<button id="laterButton">Later</button>
+
+<p id="whatText"></p>
+
+<div>
+
+    <button id="todayNext" style="display: none;">Next</button>
+    <p id="todayInst" style="display: none;">...or press Enter</p>
+
+    <button id="laterNext" style="display: none;">Next</button>
+    <p id="laterInst" style="display: none;">...or press Enter</p>
+
+</div>
+
+
+<script>
+    //Load in task from session storage and disable next button
+    window.onload = function(){
+        let whenReminder = JSON.parse(sessionStorage.getItem("whatItem"));
+            whatText.innerText = whenReminder;
+       
+    };
+   
+    //Toggle class of today button to selected or not & reset others
+    todayButton.addEventListener("click", function() {
+    if (todayButton.className = "todayDefault"){
+        todayButton.classList.toggle("todaySelected");
+        laterButton.className = "laterDefault";
+        todayNext.style.display = "block";
+        laterNext.style.display = "none";
+        todayInst.style.display = "block";
+        laterInst.style.display = "none";
+        document.addEventListener('keypress', handleTodayEnter);
+        document.removeEventListener('keypress', handleLaterEnter);
+        todayNext.addEventListener("click", pushtoToday);
+    }
+    });
+
+    //Toggle class of later button to selected or not & reset others
+    laterButton.addEventListener("click", function() {
+    if (laterButton.className = "laterDefault"); {
+        laterButton.classList.toggle("laterSelected");
+        todayButton.className = "todayDefault";
+        laterNext.style.display = "block";
+        todayNext.style.display = "none";
+        laterInst.style.display = "block";
+        todayInst.style.display = "none";
+        document.addEventListener('keypress', handleLaterEnter);
+        document.removeEventListener('keypress', handleTodayEnter);
+        laterNext.addEventListener("click", pushtoLater);
+    }
+        
+    });
+
+    //Click next to add to Today in local storage
+    function pushtoToday(){
+        let whenReminder = JSON.parse(sessionStorage.getItem("whatItem")); 
+        let saveToToday = JSON.parse(localStorage.getItem("todayArray")) || [];
+            saveToToday.push([whenReminder]);
+            localStorage.setItem("todayArray", JSON.stringify(saveToToday));
+            document.location = 'index.html'; 
+    
+    };
+
+    //Click next to add to Later in local storage
+    function pushtoLater(){
+    if (laterButton.className = "laterDefault");{
+        let whenReminder = JSON.parse(sessionStorage.getItem("whatItem")); 
+        let saveToLater = JSON.parse(localStorage.getItem("laterArray")) || [];
+        saveToLater.push([whenReminder]);
+        localStorage.setItem("laterArray", JSON.stringify(saveToLater));
+        document.location = 'index.html';  
+}
+
+
+}; 
+
+function handleTodayEnter(event){
+    if (event.keyCode === 13) {
+        if (todayButton && todayButton.style.display !== 'none'){
+            pushtoToday();
+        }
+      
+    }
+}
+
+function handleLaterEnter(event){
+    if (event.keyCode === 13) {
+        if (laterButton && laterButton.style.display !== 'none'){
+            pushtoLater();
+        }
+      
+    }
+}
+
+
+
+
+</script>
+
+</body>
+
+</html>

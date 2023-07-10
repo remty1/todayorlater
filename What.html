@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="newtask" content="makenew task">
+    <Title>New task page </Title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <a href="index.html">Back</a>
+    
+    <br/>
+    <br/>
+    
+    <div>
+        <input id="whatInput", type="text", onkeyup="noTask()" placeholder="Add a task...">
+    
+        <br/>
+        <br/>
+        
+        <button id="whatNext" onclick="savetoSession(); document.location='When.html'">Next</button> 
+    
+    </div>
+
+    <script>
+
+        //Set the input as focus when the page loads
+        window.onload = function(setFocus) {
+        whatInput.focus();}
+        whatNext.disabled = true;
+        
+        //Function to disable next button if no input
+        function noTask(){
+        if (whatInput.value ===""){
+            whatNext.disabled = true;
+        }
+        else {
+            whatNext.disabled = false;
+             }
+        }
+
+        //Funtion to save input to session storage
+        function savetoSession(){
+            sessionStorage.setItem("whatItem", JSON.stringify(whatInput.value));
+        }
+        
+        //Function to enable enter button to post lines
+        whatInput.addEventListener("keyup", function(event){
+//            if (whatInput === " "){alert("hello")};
+            if (event.key === "Enter") {
+                event.preventDefault();
+                whatNext.click();
+            }
+        });        
+
+    </script>
+
+</body>
+
+</html>

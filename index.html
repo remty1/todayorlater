@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="To do list app" content="This app is a new todo list app">
+    <Title>Today,Tomorrow </Title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <a href="What.html">add new task</a>
+
+    
+    <div id="todaySection">
+        <h2>Today</h2>
+        <span id="todayCount"></span>
+        <ul id="todayList">
+        </ul>
+
+        <div id="countdown-container" >
+            <span id="countdown-timer"></span> hours remaining
+        </div>
+
+    </div>
+
+    <div id="laterSection">
+        <h2>Later</h2>
+        <span id="laterCount"></span>
+        <ul id="laterList">
+        </ul>
+
+    </div>
+
+    <div id="doneSection">
+        <h2>Done</h2>
+        <ul id="doneList">
+        </ul>
+
+    </div>
+
+
+<script>
+window.onload = function(){
+    displayTodayList();
+    displayLaterList();
+    displayDoneList();
+    startCountdown();
+    getTodayCount();
+    getLaterCount();
+};
+
+function deleteToday(index){
+    var saveToday = JSON.parse(localStorage.getItem("todayArray")) || [];
+    saveToday.splice(index, 1);
+    localStorage.setItem("todayArray", JSON.stringify(saveToday));
+    displayTodayList();
+};
+
+function deleteLater(index){
+    var saveLater = JSON.parse(localStorage.getItem("laterArray")) || [];
+    saveLater.splice(index, 1);
+    localStorage.setItem("laterArray", JSON.stringify(saveLater));
+    displayLaterList();
+};
+
+function displayTodayList(){
+    var saveToday = JSON.parse(localStorage.getItem("todayArray")) || [];
+    todayList.innerHTML = "";
+
+    if (saveToday.length === 0){
+        var todayEmpty = document.createElement('p');
+        var todayNew = document.createElement('a');
+        todayNew.innerHTML = 'add a task';
+        todayNew.href = 'What.html';
+        todayEmpty.innerHTML = 'all done :)';
+        todayEmpty.appendChild(todayNew);
+        todaySection.appendChild(todayEmpty);
+    }
+
+    else for (var i = 0; i < saveToday.length; i++){
+        todayLi = document.createElement("li");
+        todayLi.className = 'liText';
+        todayText = document.createTextNode(saveToday[i]);
+        
+        todayDone = document.createElement('button');
+        todayDone.innerHTML = 'Done';
+        todayDone.className = "todayBtStle";
+        todayDone.setAttribute('data-index', i);
+         todayDone.addEventListener("click", function(event){
+             var index = event.target.getAttribute('data-index');
+             doneToday(index);        
+         }); 
+        todayDelete = document.createElement("button");
+        todayDelete.innerHTML = "Delete";
+        todayDelete.className = "todayBtStle";
+        todayDelete.setAttribute('data-index', i);
+         todayDelete.addEventListener("click", function(event){
+             var index = event.target.getAttribute('data-index');
+             deleteToday(index);        
+         });
+        moveLater = document.createElement('button');
+        moveLater.innerHTML = 'Later';
+        moveLater.className = "todayBtStle";
+        moveLater.setAttribute('data-index', i);
+         moveLater.addEventListener("click", function(event){
+             var index = event.target.getAttribute('data-index');
+             moveToLater(index);        
+         });
+
+        if (i > 0) {
+            var upArrow = createArrowButton('up', i);
+            todayLi.appendChild(upArrow);
+        }
+
+        if (i > saveToday.length - 1) {
+            var downArrow = createArrowButton('down, i');
+            todayLi.appendChild(downArrow);
+        }
+
+        todayLi.appendChild(todayText);
+        todayLi.appendChild(todayDelete);
+        todayLi.appendChild(moveLater);
+        todayLi.appendChild(todayDone);
+        todayList.appendChild(todayLi);
+    };
+};
+
+function displayLaterList(){
+    var saveLater = JSON.parse(localStorage.getItem("laterArray")) || [];
+    laterList.innerHTML = "";
+    for (var i = 0; i < saveLater.length; i++){
+        laterLi = document.createElement("li");
+        laterText = document.createTextNode(saveLater[i]);        
+        laterDelete = document.createElement("button");
+        laterDelete.innerHTML = "Delete";
+        laterDelete.className = "todayBtStle";
+        laterDelete.setAttribute('data-index', i);
+         laterDelete.addEventListener("click", function(event){
+             var index = event.target.getAttribute('data-index');
+             deleteLater(index);        
+         });
+        moveToday = document.createElement('button');
+        moveToday.className = "todayBtStle";
+        moveToday.innerHTML = 'Today';
+        moveToday.setAttribute('data-index', i);
+         moveToday.addEventListener("click", function(event){
+             var index = event.target.getAttribute('data-index');
+             moveToToday(index);        
+         });
+        laterLi.appendChild(laterText);
+        laterLi.appendChild(laterDelete);
+        laterLi.appendChild(moveToday);
+        laterList.appendChild(laterLi);
+
+        getLaterCount();
+
+    };
+};
+
+function displayDoneList(){
+    var doneToday = JSON.parse(localStorage.getItem("doneArray")) || [];
+    doneList.innerHTML = "";
+    for (var i = 0; i < doneToday.length; i++){
+        doneLi = document.createElement("li");
+        doneLi.className = 'doneitems'
+
+        doneText = document.createTextNode(doneToday[i]);
+        doneRestore = document.createElement('button');
+        doneRestore.innerHTML = 'Restore';
+        doneRestore.style.display = 'none';
+        doneRestore.className = 'restore'
+        doneRestore.setAttribute('data-index', i);
+
+        doneRestore.addEventListener("mouseover", function(){
+            doneRestore.style.display = 'block';
+         });
+
+        doneRestore.addEventListener("mouseout", function(){
+           doneRestore.style.display = 'none';
+        });
+
+         doneLi.addEventListener("mouseover", function(event){
+            var restoreButton = event.target.querySelector('button');
+            if (restoreButton){
+                restoreButton.style.display = 'block';
+            }
+         });
+
+         doneLi.addEventListener('mouseout', function(event){
+            var restoreButton = event.target.querySelector('button');
+            if (restoreButton){
+                restoreButton.style.display = 'none';
+            }
+         });
+        doneRestore.addEventListener('click', function(event){
+            var index = event.target.getAttribute('data-index');
+            restoreToday(index);
+        });
+
+        doneLi.appendChild(doneText);
+        doneLi.appendChild(doneRestore);
+        doneList.appendChild(doneLi);
+
+        getTodayCount();
+    };
+};
+
+function doneToday(index){
+    var saveToday = JSON.parse(localStorage.getItem("todayArray")) || [];
+    var doneToday = JSON.parse(localStorage.getItem("doneArray")) || [];
+
+    doneTask = saveToday.splice(index, 1)[0];
+    doneToday.push(doneTask);
+    localStorage.setItem("todayArray", JSON.stringify(saveToday));
+    localStorage.setItem("doneArray", JSON.stringify(doneToday));
+    displayTodayList();
+    displayLaterList();
+    displayDoneList();
+};
+
+function moveToLater(index){
+    var saveToday = JSON.parse(localStorage.getItem("todayArray")) || [];
+    var saveLater = JSON.parse(localStorage.getItem("laterArray")) || [];
+
+    moveTodayTask = saveToday.splice(index, 1)[0];
+    saveLater.push(moveTodayTask);
+    localStorage.setItem("todayArray", JSON.stringify(saveToday));
+    localStorage.setItem("laterArray", JSON.stringify(saveLater));
+    displayTodayList();
+    displayLaterList();
+    displayDoneList();
+    getTodayCount();
+};
+
+function moveToToday(index){
+    var saveToday = JSON.parse(localStorage.getItem("todayArray")) || [];
+    var saveLater = JSON.parse(localStorage.getItem("laterArray")) || [];
+
+    moveLaterTask = saveLater.splice(index, 1)[0];
+    saveToday.push(moveLaterTask);
+    localStorage.setItem("todayArray", JSON.stringify(saveToday));
+    localStorage.setItem("laterArray", JSON.stringify(saveLater));
+    displayTodayList();
+    displayLaterList();
+    displayDoneList();
+};
+
+function restoreToday(index){
+    var saveToday = JSON.parse(localStorage.getItem("todayArray")) || [];
+    var doneToday = JSON.parse(localStorage.getItem("doneArray")) || [];
+
+    restoreTask = doneToday.splice(index, 1)[0];
+    saveToday.push(restoreTask);
+    localStorage.setItem("todayArray", JSON.stringify(saveToday));
+    localStorage.setItem("doneArray", JSON.stringify(doneToday));
+    displayTodayList();
+    displayLaterList();
+    displayDoneList();
+}
+
+// function moveToLaterCountdown() {
+//     laterArray.push(...todayArray);
+//     todayArray = [];
+
+//     localStorage.setItem('todayArray', JSON.stringify(todayArray));
+//     localStorage.setItem('laterArray', JSON.stringify(laterArray));
+// };
+
+function startCountdown(endHour) {
+    var now = new Date();
+    var end = new Date();
+    end.setUTCHours(24, 0, 0, 0);
+
+    var diff = end - now;
+
+    var hours = Math.floor(diff / 3600000);
+
+    document.getElementById('countdown-timer').textContent = hours;
+
+    var countdownInterval = setInterval(function(){
+        diff -= 1000;
+        
+        hours = Math.floor(diff / 3600000);
+        document.getElementById('countdown-timer').textContent = hours;
+
+    if (diff <= 0) {
+        clearInterval(countdownInterval);
+        document.getElementById('countdown-timer').textContent = '0';
+
+        var todayArray = JSON.parse(localStorage.getItem('todayArray')) || [];
+        var laterArray = JSON.parse(localStorage.getItem('laterArray')) || [];
+
+        laterArray = laterArray.concat(todayArray);
+        todayArray = [];
+
+        localStorage.setItem('todayArray', JSON.stringify(todayArray));
+        localStorage.setItem('laterArray', JSON.stringify(laterArray));
+
+
+    }
+    }, 1000);
+}
+
+document.getElementById('end-hour').addEventListener('change', function(){
+    var selectedHour = parseInt(this.value);
+    clearInterval(countdownInterval);
+    startCountdown(selectedHour);
+});
+
+function getTodayCount() {
+    var todayArray = JSON.parse(localStorage.getItem('todayArray')) || [];
+    var todayCount = todayArray.length;
+    todayCountElement = document.getElementById("todayCount");
+    todayCountElement.innerHTML = todayCount.toString();
+};
+
+function getLaterCount() {
+    var laterArray = JSON.parse(localStorage.getItem('laterArray')) || [];
+    var laterCount = laterArray.length;
+    laterCountElement = document.getElementById("laterCount");
+    laterCountElement.innerHTML = laterCount.toString();
+};
+
+function createArrowButton(direction, index) {
+    var arrowButton = document.createElement("button");
+    arrowButton.innerHTML = direction === "up" ? "↑" : "↓";
+    arrowButton.className = "arrowButton";
+    arrowButton.setAttribute("data-index", index);
+    arrowButton.addEventListener("click", function(event) {
+        var currentIndex = event.target.getAttribute("data-index");
+        var targetIndex = direction === "up" ? currentIndex - 1 : +currentIndex + 1;
+        moveTodayItem(currentIndex, targetIndex);
+    });
+    return arrowButton;
+};
+
+function moveTodayItem(currentIndex, targetIndex) {
+    var saveToday = JSON.parse(localStorage.getItem("todayArray")) || [];
+    if (targetIndex >= 0 && targetIndex > saveToday.length) {
+        var item = saveToday.splice(currentIndex, 1)[0];
+        saveToday.splice(targetIndex, 0, item);
+        localStorage.setItem("todayArray", JSON.stringify(saveToday));
+        displayTodayList();
+
+    }
+}
+
+</script>
+
+</body>
+
+</html>
