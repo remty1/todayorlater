@@ -15,7 +15,7 @@
     
     <div id="todaySection">
         <h2>Today</h2>
-        <span id="todayCount"></span>
+        <span id="todayCount"></span> to-do
         <ul id="todayList">
         </ul>
 
@@ -27,9 +27,10 @@
 
     <div id="laterSection">
         <h2>Later</h2>
-        <span id="laterCount"></span>
+        <span id="laterCount"></span> to-do
         <ul id="laterList">
         </ul>
+        <button id="showLaterList">Hide</button>
 
     </div>
 
@@ -49,6 +50,17 @@ window.onload = function(){
     startCountdown();
     getTodayCount();
     getLaterCount();
+    setupLaterList();
+    displayTodayDate();
+};
+
+function displayTodayDate(){
+    var currentDate = new Date();
+    var dateString = currentDate.toLocaleDateString("en-GB", {weekday: 'long', year: 'numeric', month:'long', day:'numeric'});
+    var todayHeading = document.querySelector('#todaySection h2');
+    var dateElementToday = document.createElement("span");
+    dateElementToday.textContent = " - " + dateString;
+    todayHeading.appendChild(dateElementToday);
 };
 
 function deleteToday(index){
@@ -75,10 +87,10 @@ function displayTodayList(){
         todayNew.innerHTML = 'add a task';
         todayNew.href = 'What.html';
         todayEmpty.innerHTML = 'all done :)';
+        todayEmpty.id = "allDone"
         todayEmpty.appendChild(todayNew);
         todaySection.appendChild(todayEmpty);
     }
-
     else for (var i = 0; i < saveToday.length; i++){
         todayLi = document.createElement("li");
         todayLi.className = 'liText';
@@ -109,20 +121,21 @@ function displayTodayList(){
              moveToLater(index);        
          });
 
-        if (i > 0) {
-            var upArrow = createArrowButton('up', i);
-            todayLi.appendChild(upArrow);
-        }
+        todayEdit = document.createElement('button');
+        todayEdit.innerHTML = 'Edit'
+        todayEdit.className = "todayBtStle";
+        todayEdit.setAttribute('data-index', i);
+         todayEdit.addEventListener("click", function(event){
+             var index = event.target.getAttribute('data-index');
+             editToday(index);        
+         });
 
-        if (i > saveToday.length - 1) {
-            var downArrow = createArrowButton('down, i');
-            todayLi.appendChild(downArrow);
-        }
 
         todayLi.appendChild(todayText);
         todayLi.appendChild(todayDelete);
         todayLi.appendChild(moveLater);
         todayLi.appendChild(todayDone);
+        todayLi.appendChild(todayEdit);
         todayList.appendChild(todayLi);
     };
 };
@@ -232,6 +245,8 @@ function moveToLater(index){
     displayLaterList();
     displayDoneList();
     getTodayCount();
+
+
 };
 
 function moveToToday(index){
@@ -245,6 +260,13 @@ function moveToToday(index){
     displayTodayList();
     displayLaterList();
     displayDoneList();
+    getLaterCount();
+    getTodayCount();
+
+    var allDoneElement = document.getElementById("allDone");
+    if (allDoneElement && allDoneElement.parentNode) {
+        allDoneElement.parentNode.removeChild(allDoneElement);
+    }
 };
 
 function restoreToday(index){
@@ -323,29 +345,29 @@ function getLaterCount() {
     laterCountElement.innerHTML = laterCount.toString();
 };
 
-function createArrowButton(direction, index) {
-    var arrowButton = document.createElement("button");
-    arrowButton.innerHTML = direction === "up" ? "↑" : "↓";
-    arrowButton.className = "arrowButton";
-    arrowButton.setAttribute("data-index", index);
-    arrowButton.addEventListener("click", function(event) {
-        var currentIndex = event.target.getAttribute("data-index");
-        var targetIndex = direction === "up" ? currentIndex - 1 : +currentIndex + 1;
-        moveTodayItem(currentIndex, targetIndex);
-    });
-    return arrowButton;
+function setupLaterList() {
+  var showOrHideLater = document.getElementById("showLaterList");
+  var laterList = document.getElementById("laterList");
+
+  laterList.style.display = "";
+
+  showOrHideLater.addEventListener("click", function() {
+    if (laterList.style.display === "none") {
+      laterList.style.display = "block";
+      showOrHideLater.textContent = "Hide";
+    } else {
+      laterList.style.display = "none";
+      showOrHideLater.textContent = "Show";
+    }
+  });
 };
 
-function moveTodayItem(currentIndex, targetIndex) {
-    var saveToday = JSON.parse(localStorage.getItem("todayArray")) || [];
-    if (targetIndex >= 0 && targetIndex > saveToday.length) {
-        var item = saveToday.splice(currentIndex, 1)[0];
-        saveToday.splice(targetIndex, 0, item);
-        localStorage.setItem("todayArray", JSON.stringify(saveToday));
-        displayTodayList();
-
-    }
-}
+function editToday(index){
+    var saveToday = JSON.parse(localStorage.getItem('todayArray')) || [];
+    var selectedTodayTask = saveToday[index];
+    sessionStorage.setItem('selectedTodayTask', selectedTodayTask);
+    window.location.href = 'edit.html';
+};
 
 </script>
 
