@@ -57,18 +57,17 @@
         function savetoSession(){
             sessionStorage.setItem("editedWhatItemLater", JSON.stringify(editInput.value));
             
-            let editedWhatReminderLater = JSON.parse(sessionStorage.getItem("editedWhatItemLater")); 
-            let saveToLater = JSON.parse(localStorage.getItem("laterArray")) || [];
-            let selectedLaterTask = sessionStorage.getItem('selectedLaterTask');
-
-            var index = saveToLater.indexOf(selectedLaterTask);
-                saveToLater.splice(index, 1);
-                saveToLater.push([editedWhatReminderLater]);
-
+            var editedWhatReminderLater = JSON.parse(sessionStorage.getItem("editedWhatItemLater"));
+            var selectedLaterTaskIndex = sessionStorage.getItem('selectedLaterTaskIndex');
+            var saveToLater = JSON.parse(localStorage.getItem("laterArray")) || [];
+                
+            saveToLater[selectedLaterTaskIndex] = [editedWhatReminderLater];
             localStorage.setItem("laterArray", JSON.stringify(saveToLater));
-                    sessionStorage.removeItem('editedWhatItemLater');
-                    sessionStorage.removeItem('selectedLaterTask');
-                    document.location = 'index.html';
+            
+                sessionStorage.removeItem('selectedLaterTask');
+                sessionStorage.removeItem('selectedLaterTaskIndex');
+                sessionStorage.removeItem('editedWhatItemLater');
+                document.location = 'index.html';
         };
         
         //Function to enable enter button to post lines

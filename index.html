@@ -377,6 +377,7 @@ function editToday(index){
     var saveToday = JSON.parse(localStorage.getItem('todayArray')) || [];
     var selectedTodayTask = saveToday[index];
     sessionStorage.setItem('selectedTodayTask', selectedTodayTask);
+    sessionStorage.setItem('selectedTodayTaskIndex', index.toString());
     window.location.href = 'editWhatToday.html';
 };
 
@@ -384,6 +385,7 @@ function editLater(index){
     var saveLater = JSON.parse(localStorage.getItem('laterArray')) || [];
     var selectedLaterTask = saveLater[index];
     sessionStorage.setItem('selectedLaterTask', selectedLaterTask);
+    sessionStorage.setItem('selectedLaterTaskIndex', index.toString());
     window.location.href = 'editWhatLater.html';
 };
 

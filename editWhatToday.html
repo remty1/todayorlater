@@ -57,21 +57,19 @@
         //Funtion to save input to session storage
         function savetoSession(){
             sessionStorage.setItem("editedWhatItemToday", JSON.stringify(editInput.value));
-            //sessionStorage.removeItem('selectedTodayTask');
-            
-            let editedWhatReminderToday = JSON.parse(sessionStorage.getItem("editedWhatItemToday")); 
-            let saveToToday = JSON.parse(localStorage.getItem("todayArray")) || [];
-            let selectedTodayTask = sessionStorage.getItem('selectedTodayTask');
 
-            var index = saveToToday.indexOf(selectedTodayTask);
-                saveToToday.splice(index, 1);
-                saveToToday.push([editedWhatReminderToday]);
-
+            var editedWhatReminderToday = JSON.parse(sessionStorage.getItem("editedWhatItemToday"));
+            var selectedTodayTaskIndex = sessionStorage.getItem('selectedTodayTaskIndex');
+            var saveToToday = JSON.parse(localStorage.getItem("todayArray")) || [];
+                
+            saveToToday[selectedTodayTaskIndex] = [editedWhatReminderToday];
             localStorage.setItem("todayArray", JSON.stringify(saveToToday));
-                    sessionStorage.removeItem('editedWhatItemToday');
-                    sessionStorage.removeItem('selectedTodayTask');
-                    document.location = 'index.html';
-        }
+            
+                sessionStorage.removeItem('selectedTodayTask');
+                sessionStorage.removeItem('selectedTodayTaskIndex');
+                sessionStorage.removeItem('editedWhatItemToday');
+                document.location = 'index.html';
+        };
         
         //Function to enable enter button to post lines
         editInput.addEventListener("keyup", function(event){
