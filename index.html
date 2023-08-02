@@ -162,9 +162,20 @@ function displayLaterList(){
              var index = event.target.getAttribute('data-index');
              moveToToday(index);        
          });
+
+        laterEdit = document.createElement('button');
+        laterEdit.innerHTML = 'Edit'
+        laterEdit.className = "todayBtStle";
+        laterEdit.setAttribute('data-index', i);
+         laterEdit.addEventListener("click", function(event){
+             var index = event.target.getAttribute('data-index');
+             editLater(index);        
+         });
+
         laterLi.appendChild(laterText);
         laterLi.appendChild(laterDelete);
         laterLi.appendChild(moveToday);
+        laterLi.appendChild(laterEdit);
         laterList.appendChild(laterLi);
 
         getLaterCount();
@@ -323,13 +334,13 @@ function startCountdown(endHour) {
 
     }
     }, 1000);
-}
+};
 
-document.getElementById('end-hour').addEventListener('change', function(){
-    var selectedHour = parseInt(this.value);
-    clearInterval(countdownInterval);
-    startCountdown(selectedHour);
-});
+// document.getElementById('end-hour').addEventListener("change", function(){
+//     var selectedHour = parseInt(this.value);
+//     clearInterval(countdownInterval);
+//     startCountdown(selectedHour);
+// });
 
 function getTodayCount() {
     var todayArray = JSON.parse(localStorage.getItem('todayArray')) || [];
@@ -366,7 +377,14 @@ function editToday(index){
     var saveToday = JSON.parse(localStorage.getItem('todayArray')) || [];
     var selectedTodayTask = saveToday[index];
     sessionStorage.setItem('selectedTodayTask', selectedTodayTask);
-    window.location.href = 'edit.html';
+    window.location.href = 'editWhatToday.html';
+};
+
+function editLater(index){
+    var saveLater = JSON.parse(localStorage.getItem('laterArray')) || [];
+    var selectedLaterTask = saveLater[index];
+    sessionStorage.setItem('selectedLaterTask', selectedLaterTask);
+    window.location.href = 'editWhatLater.html';
 };
 
 </script>

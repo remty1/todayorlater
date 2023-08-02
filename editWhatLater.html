@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="newtask" content="makenew task">
+    <Title>Edit a task for later</Title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <a href="index.html">Back</a>
+    
+    <br/>
+    <br/>
+    
+    <div>
+        <input id="editInput", type="text", onkeyup="noTask()" placeholder="Add a task...">
+    
+        <br/>
+        <br/>
+        
+        <button id="whatNext" onclick="savetoSession(); document.location='index.html'">Next</button> 
+    
+    </div>
+
+    <script>
+
+        //Set the input as focus when the page loads
+        window.onload = function() {
+        editInput.focus();
+        populateEditInput();
+        whatNext.disabled = true;
+    }
+        //Function to populate the selected item into the input field
+        function populateEditInput(){
+            var selectedLaterTask = sessionStorage.getItem('selectedLaterTask');
+            if (selectedLaterTask) {
+                var editInput = document.getElementById('editInput');
+                editInput.value = selectedLaterTask;
+            }
+        };
+
+        //Function to disable next button if no input
+        function noTask(){
+        if (editInput.value ===""){
+            whatNext.disabled = true;
+        }
+        else {
+            whatNext.disabled = false;
+             }
+        }
+
+        //Funtion to update the array to new value
+        function savetoSession(){
+            sessionStorage.setItem("editedWhatItemLater", JSON.stringify(editInput.value));
+            
+            let editedWhatReminderLater = JSON.parse(sessionStorage.getItem("editedWhatItemLater")); 
+            let saveToLater = JSON.parse(localStorage.getItem("laterArray")) || [];
+            let selectedLaterTask = sessionStorage.getItem('selectedLaterTask');
+
+            var index = saveToLater.indexOf(selectedLaterTask);
+                saveToLater.splice(index, 1);
+                saveToLater.push([editedWhatReminderLater]);
+
+            localStorage.setItem("laterArray", JSON.stringify(saveToLater));
+                    sessionStorage.removeItem('editedWhatItemLater');
+                    sessionStorage.removeItem('selectedLaterTask');
+                    document.location = 'index.html';
+        };
+        
+        //Function to enable enter button to post lines
+        editInput.addEventListener("keyup", function(event){
+            if (event.key === "Enter") {
+                event.preventDefault();
+                whatNext.click();
+            }
+        });        
+
+    </script>
+
+</body>
+
+</html>

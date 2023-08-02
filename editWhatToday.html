@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="newtask" content="makenew task">
+    <Title>Edit a task for today</Title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <a href="index.html">Back</a>
+    
+    <br/>
+    <br/>
+    
+    <div>
+        <input id="editInput", type="text", onkeyup="noTask()" placeholder="Add a task...">
+    
+        <br/>
+        <br/>
+        
+        <button id="whatNext" onclick="savetoSession(); document.location='index.html'">Next</button> 
+    
+    </div>
+
+    <script>
+
+        //Set the input as focus when the page loads
+        window.onload = function() {
+        editInput.focus();
+        populateEditInput();
+        whatNext.disabled = true;
+    }
+        
+        function populateEditInput(){
+            var selectedTodayTask = sessionStorage.getItem('selectedTodayTask');
+            if (selectedTodayTask) {
+                var editInput = document.getElementById('editInput');
+                editInput.value = selectedTodayTask;
+            }
+        };
+
+
+        //Function to disable next button if no input
+        function noTask(){
+        if (editInput.value ===""){
+            whatNext.disabled = true;
+        }
+        else {
+            whatNext.disabled = false;
+             }
+        }
+
+        //Funtion to save input to session storage
+        function savetoSession(){
+            sessionStorage.setItem("editedWhatItemToday", JSON.stringify(editInput.value));
+            //sessionStorage.removeItem('selectedTodayTask');
+            
+            let editedWhatReminderToday = JSON.parse(sessionStorage.getItem("editedWhatItemToday")); 
+            let saveToToday = JSON.parse(localStorage.getItem("todayArray")) || [];
+            let selectedTodayTask = sessionStorage.getItem('selectedTodayTask');
+
+            var index = saveToToday.indexOf(selectedTodayTask);
+                saveToToday.splice(index, 1);
+                saveToToday.push([editedWhatReminderToday]);
+
+            localStorage.setItem("todayArray", JSON.stringify(saveToToday));
+                    sessionStorage.removeItem('editedWhatItemToday');
+                    sessionStorage.removeItem('selectedTodayTask');
+                    document.location = 'index.html';
+        }
+        
+        //Function to enable enter button to post lines
+        editInput.addEventListener("keyup", function(event){
+//            if (whatInput === " "){alert("hello")};
+            if (event.key === "Enter") {
+                event.preventDefault();
+                whatNext.click();
+            }
+        });        
+
+    </script>
+
+</body>
+
+</html>
