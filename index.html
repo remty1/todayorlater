@@ -13,22 +13,10 @@
 
     <div id="todaySection">
         <h1 id="todayHeading">Today</h1>
-        <ul id="todayList">
-        </ul>
+        <ul id="todayList"></ul>
         <div id="inputContainer">
             <textarea id="whatInput" type="text" onkeyup="noTask()" placeholder="Add a task..." style="display: none;" oninput="autoGrow(this)"></textarea>
             <div id="buttonContainer">
-                <select id="taskDuration" style="display: none;">
-                    <option value="" disabled selected>How long?</option>
-                    <option value="5m">5m</option>
-                    <option value="10m">10m</option>
-                    <option value="30m">30m</option>
-                    <option value="1h">1h</option>
-                </select>
-                <select id="goalSelect" style="display: none;" onchange="handleGoalChange(this)">
-                    <option value="" disabled selected>What goal?</option>
-                    <option value="custom">Create a goal...</option>
-                </select>
                 <input type="text" id="customGoalInput" placeholder="Create your own goal..." style="display: none;" onblur="saveCustomGoal(this.value)">
                 <button id="whatSave" onclick="saveToToday()" style="display: none;">Save</button>
                 <button id="whatCancel" style="display: none;">Cancel</button>
@@ -39,39 +27,31 @@
     <div id="laterSection">
         <div class="later-header">
             <h2>Later (<span id="laterCount"></span> tasks)<button id="showLaterList">Show &#x25BC</button></h2>
-            <!-- <b>(<span id="laterCount">()</span> tasks)</b> -->
         </div> 
-        <ul id="laterList">
-        </ul>
+        <ul id="laterList"></ul>
     </div>
 
     <div id="doneSection">
         <h2 onclick="window.location='History.html'">History</h2>
-        <ul id="doneList">
-        </ul>
-
+        <ul id="doneList"></ul>
     </div>
 
 <script>
 window.onload = function(){
     displayTodayList();
     displayLaterList();
-    displayDoneList();
-    startCountdown();
     getLaterCount();
     setupLaterList();
     displayTodayDate();
     handleTaskEnter();
     document.getElementById('whatSave').disabled = true;
-    loadCustomGoals();
     openTaskInput();
 };
 
 function displayTodayDate(){
     var currentDate = new Date();
     var dateString = currentDate.toLocaleDateString("en-GB", {weekday: 'long', year: 'numeric', month:'long', day:'numeric'});
-    var todayHeading = document.querySelector('#todaySection h1');
-    todayHeading.textContent = dateString;
+    document.querySelector('#todaySection h1').textContent = dateString;
 };
 
 function deleteToday(index){
@@ -90,25 +70,9 @@ function deleteLater(index){
 
 function displayTodayList(){
     var saveToday = JSON.parse(localStorage.getItem("todayArray")) || [];
+    var todayListFragment = document.createDocumentFragment();
+    var todayList = document.getElementById('todayList');
     todayList.innerHTML = "";
-
-    if (saveToday.length === 0){
-        if (!document.getElementById("alldone")){
-            var todayEmpty = document.createElement('p');
-            todayEmpty.innerHTML = 'What do you want to get done today?';
-            todayEmpty.id = "allDone";
-        
-        
-        var todaySection = document.getElementById('todaySection');
-        todaySection.insertBefore(todayEmpty, todaySection.children[1]);
-    }
-    }
-    else {
-        var existingMessage = document.getElementById('allDone');
-        if (existingMessage){
-            existingMessage.parentNode.removeChild(existingMessage);
-        }
-    }
 
     for (var i = 0; i < saveToday.length; i++){
         todayLi = document.createElement("li");
@@ -148,7 +112,7 @@ function displayTodayList(){
          });
 
         todayEdit = document.createElement('button');
-        todayEdit.innerHTML = '&#9998'
+        todayEdit.innerHTML = '&#9998';
         todayEdit.className = "todayBtStle";
         todayEdit.setAttribute('title', 'Edit');
         todayEdit.setAttribute('data-index', i);
@@ -165,24 +129,27 @@ function displayTodayList(){
         todayLi.appendChild(todayText);
         todayLi.appendChild(buttonContainer);
 
-        todayList.appendChild(todayLi);
+        todayListFragment.appendChild(todayLi);
     };
-
-    var todayAdd = document.createElement('button');
-        // todayAdd.textContent = '+ Add a new task';
-        todayAdd.id = "addTaskButton"
-        todayAdd.onclick = openTaskInput; // Use the openTaskInput function
-        todayList.appendChild(todayAdd);
+    todayList.appendChild(todayListFragment);
+    openTaskInput();
 };
 
 function displayLaterList(){
     var saveLater = JSON.parse(localStorage.getItem("laterArray")) || [];
+    var laterListFragment = document.createDocumentFragment();
+    var laterList = document.getElementById('laterList');
     laterList.innerHTML = "";
+    
     for (var i = 0; i < saveLater.length; i++){
         laterLi = document.createElement("li");
-        laterText = document.createTextNode(saveLater[i]);        
+        laterText = document.createTextNode(saveLater[i]);
+        
+        var laterbuttonContainer = document.createElement('div');
+        laterbuttonContainer.className = 'buttonContainer'
+        
         laterDelete = document.createElement("button");
-        laterDelete.innerHTML = "Delete";
+        laterDelete.innerHTML = "&#128465";
         laterDelete.className = "todayBtStle";
         laterDelete.setAttribute('data-index', i);
          laterDelete.addEventListener("click", function(event){
@@ -191,7 +158,8 @@ function displayLaterList(){
          });
         moveToday = document.createElement('button');
         moveToday.className = "todayBtStle";
-        moveToday.innerHTML = 'Today';
+        moveToday.innerHTML = '&#x25B2';
+        moveToday.setAttribute('title', 'Move to Today');
         moveToday.setAttribute('data-index', i);
          moveToday.addEventListener("click", function(event){
              var index = event.target.getAttribute('data-index');
@@ -199,7 +167,7 @@ function displayLaterList(){
          });
 
         laterEdit = document.createElement('button');
-        laterEdit.innerHTML = 'Edit'
+        laterEdit.innerHTML = '&#9998';
         laterEdit.className = "todayBtStle";
         laterEdit.setAttribute('data-index', i);
          laterEdit.addEventListener("click", function(event){
@@ -207,63 +175,20 @@ function displayLaterList(){
              editLater(index);        
          });
 
+        laterbuttonContainer.appendChild(moveToday);
+        laterbuttonContainer.appendChild(laterEdit);
+        laterbuttonContainer.appendChild(laterDelete);
+
         laterLi.appendChild(laterText);
-        laterLi.appendChild(laterDelete);
-        laterLi.appendChild(moveToday);
-        laterLi.appendChild(laterEdit);
+        laterLi.appendChild(laterbuttonContainer);
+        
         laterList.appendChild(laterLi);
+        laterListFragment.appendChild(laterLi);
 
         getLaterCount();
-
     };
-};
-
-function displayDoneList(){
-    var doneToday = JSON.parse(localStorage.getItem("doneArray")) || [];
-    doneList.innerHTML = "";
-    for (var i = 0; i < doneToday.length; i++){
-        doneLi = document.createElement("li");
-        doneLi.className = 'doneitems'
-
-        doneText = document.createTextNode(doneToday[i]);
-        doneRestore = document.createElement('button');
-        doneRestore.innerHTML = 'Restore';
-        doneRestore.style.display = 'none';
-        doneRestore.className = 'restore'
-        doneRestore.setAttribute('data-index', i);
-
-        doneRestore.addEventListener("mouseover", function(){
-            doneRestore.style.display = 'block';
-         });
-
-        doneRestore.addEventListener("mouseout", function(){
-           doneRestore.style.display = 'none';
-        });
-
-         doneLi.addEventListener("mouseover", function(event){
-            var restoreButton = event.target.querySelector('button');
-            if (restoreButton){
-                restoreButton.style.display = 'block';
-            }
-         });
-
-         doneLi.addEventListener('mouseout', function(event){
-            var restoreButton = event.target.querySelector('button');
-            if (restoreButton){
-                restoreButton.style.display = 'none';
-            }
-         });
-        doneRestore.addEventListener('click', function(event){
-            var index = event.target.getAttribute('data-index');
-            restoreToday(index);
-        });
-
-        doneLi.appendChild(doneText);
-        doneLi.appendChild(doneRestore);
-        doneList.appendChild(doneLi);
-
-        getTodayCount();
-    };
+    laterList.appendChild(laterListFragment);
+    openTaskInput();
 };
 
 function doneToday(index){
@@ -282,31 +207,20 @@ function doneToday(index){
     localStorage.setItem("doneHistory", JSON.stringify(doneHistory));
     displayTodayList();
     displayLaterList();
-    // displayDoneList(); // Update this function if it's still used on the index page
-}
+};
 
 function moveToLater(index){
     var saveToday = JSON.parse(localStorage.getItem("todayArray")) || [];
     var saveLater = JSON.parse(localStorage.getItem("laterArray")) || [];
 
     var moveTodayTask = saveToday.splice(index, 1)[0];
-    
-    var todayListItem = document.querySelector("#todayList li[data-index='" + index + "']");
-    if (todayListItem){
-        todayListItem.classList.add('fade-out');
-    }
-    setTimeout(function(){
         saveLater.push(moveTodayTask);
         localStorage.setItem("todayArray", JSON.stringify(saveToday));
         localStorage.setItem("laterArray", JSON.stringify(saveLater));
         displayTodayList();
         displayLaterList();
         displayDoneList();
-        getTodayCount();
-        animateLaterCountIncrease();
-    }, 500);
 };
-
 
 function moveToToday(index){
     var saveToday = JSON.parse(localStorage.getItem("todayArray")) || [];
@@ -319,54 +233,7 @@ function moveToToday(index){
     displayTodayList();
     displayLaterList();
     displayDoneList();
-    getLaterCount();
-    getTodayCount();
-
-    var allDoneElement = document.getElementById("allDone");
-    if (allDoneElement && allDoneElement.parentNode) {
-        allDoneElement.parentNode.removeChild(allDoneElement);
-    }
 };
-
-function restoreToday(index){
-    var saveToday = JSON.parse(localStorage.getItem("todayArray")) || [];
-    var doneToday = JSON.parse(localStorage.getItem("doneArray")) || [];
-
-    restoreTask = doneToday.splice(index, 1)[0];
-    saveToday.push(restoreTask);
-    localStorage.setItem("todayArray", JSON.stringify(saveToday));
-    localStorage.setItem("doneArray", JSON.stringify(doneToday));
-    displayTodayList();
-    displayLaterList();
-    displayDoneList();
-}
-
-function startCountdown() {
-    var updateCountdown = function() {
-        var now = new Date();
-        var end = new Date();
-        end.setHours(24, 0, 0, 0); // Set end time to midnight local time
-
-        var diff = end - now;
-
-        // Convert milliseconds to hours, then round down to the nearest whole number
-        var hours = Math.floor(diff / (1000 * 60 * 60));
-
-        // Update the countdown display
-        var countdownElement = document.getElementById('countdown-timer');
-        if (countdownElement) {
-            countdownElement.textContent = hours;
-        }
-
-        // When countdown reaches zero, clear the interval and reset for the next day
-        if (diff <= 0) {
-            setTimeout(updateCountdown, 2000); // Wait 2 seconds and reset the countdown for the next day
-        }
-    };
-
-    updateCountdown();
-    setInterval(updateCountdown, 3600000); // Update every 3600000 milliseconds (1 hour)
-}
 
 function getLaterCount() {
     var laterArray = JSON.parse(localStorage.getItem('laterArray')) || [];
@@ -424,19 +291,10 @@ function autoGrow(element) {
 
 function saveToToday(){
     var todayContent = document.getElementById('whatInput').value;
-    var taskDuration = document.getElementById('taskDuration').value;
     var saveToToday = JSON.parse(localStorage.getItem("todayArray")) || [];
         saveToToday.push([todayContent]);
         localStorage.setItem("todayArray", JSON.stringify(saveToToday));
         displayTodayList();
-
-        document.getElementById('whatInput').value = '';
-        document.getElementById('taskDuration').style.display = 'none';
-        document.getElementById('whatInput').style.height = '5px';
-        document.getElementById('whatInput').style.display = 'none';
-        document.getElementById('whatSave').style.display = 'none';
-        document.getElementById('whatCancel').style.display = 'none';
-        document.getElementById('addTaskButton').style.display = 'inline';
         openTaskInput();
 }
 
@@ -451,112 +309,29 @@ function handleTaskEnter(){
             }
         }
     });
-}
-
-function moveTasksAtSpecificTime() {
-    const now = new Date();
-    const todayDateString = now.toISOString().split('T')[0]; // Get the current date string
-
-    const lastMovedDate = localStorage.getItem('lastMovedDate');
-
-    if (lastMovedDate !== todayDateString) {
-        moveTodayToLater();
-        localStorage.setItem('lastMovedDate', todayDateString);
-    }
-}
-
-function moveTodayToLater() {
-    const todayList = JSON.parse(localStorage.getItem('todayArray')) || [];
-    const laterList = JSON.parse(localStorage.getItem('laterArray')) || [];
-
-    // Move all items from today to later
-    laterList.push(...todayList);
-    localStorage.setItem('laterArray', JSON.stringify(laterList));
-    localStorage.setItem('todayArray', JSON.stringify([])); // Clear today list
-
-    // Refresh the displayed lists
-    displayTodayList();
-    displayLaterList();
-    getLaterCount();
-}
-
-// Call this function regularly to check if the day has changed
-setInterval(moveTasksAtSpecificTime, 60000); // Check every minute
-
-function handleGoalChange(select) {
-    const customGoalInput = document.getElementById('customGoalInput');
-    if (select.value === 'custom') {
-        customGoalInput.style.display = 'inline';
-        customGoalInput.focus();
-    } else {
-        customGoalInput.style.display = 'none';
-    }
-}
-
-function saveCustomGoal(goalName) {
-    if (goalName.trim() === '') return;
-    const goalSelect = document.getElementById('goalSelect');
-    for (let i = 0; i < goalSelect.options.length; i++) {
-        if (goalSelect.options[i].value === goalName) {
-            alert('This goal already exists');
-            return;
-        }
-    }
-
-    const newOption = new Option(goalName, goalName, false, true);
-goalSelect.add(newOption);
-document.getElementById('customGoalInput').style.display = 'none';
-saveGoalsToLocal(goalName);
-}
-
-function saveGoalsToLocal(goalName) {
-    let savedGoals = JSON.parse(localStorage.getItem('customGoals')) || [];
-    savedGoals.push(goalName);
-    localStorage.setItem('customGoals', JSON.stringify(savedGoals));
-}
-
-function loadCustomGoals() {
-    let savedGoals = JSON.parse(localStorage.getItem('customGoals')) || [];
-    const goalSelect = document.getElementById('goalSelect');
-    savedGoals.forEach(goalName => {
-        const newOption = new Option(goalName, goalName);
-        goalSelect.add(newOption);
-    });
-}
-
+};
 
 function openTaskInput() {
     var inputTask = document.getElementById('whatInput');
     var inputSave = document.getElementById('whatSave');           
     var inputCancel = document.getElementById('whatCancel');
-    var addTaskButton = document.getElementById('addTaskButton');
-    var taskDurationDropdown = document.getElementById('taskDuration');
-    var goalDropdown = document.getElementById('goalSelect');
 
     if (inputTask.value = ''){
-        addTaskButton.style.display = 'none';
         inputTask.style.display = 'inline';
-        inputTask.style.height = '5px';
+        inputTask.style.height = 'auto';
         inputSave.style.display = 'none';
         inputSave.disabled = true;
         inputCancel.style.display = 'none';
-        taskDurationDropdown.style.display = 'none';
-        goalDropdown.style.display = 'none';
         inputTask.focus();
     }
     else {
-        addTaskButton.style.display = 'none';
         inputTask.style.display = 'inline';
-        inputTask.style.height = '5px';
+        inputTask.style.height = 'auto';
         inputSave.style.display = 'inline';
         inputSave.disabled = true;
         inputCancel.style.display = 'inline';
-        taskDurationDropdown.style.display = 'inline';
-        goalDropdown.style.display = 'inline';
         inputTask.focus();
     }
-   
-
     inputCancel.onclick = function(){
         inputTask.value = '';
         inputTask.style.display = 'inline';
@@ -566,10 +341,8 @@ function openTaskInput() {
         inputSave.disabled = true;
         inputTask.focus();
     };
-}
+};
 
 </script>
-
 </body>
-
 </html>
