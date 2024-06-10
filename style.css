@@ -1,7 +1,7 @@
 
         body {
-            font-family: "Helvetica Neue", Arial, sans-serif;
-            background-color: #f5f5f5;
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #fefefd;
             margin: 0;
             padding: 0;
         }
@@ -18,20 +18,38 @@
             border-radius: 4px;
         }
 
-        h2 {
-            font-size: 24px;
-            margin: 20px 0;
+        h1 {
+            font-size: 20px;
+            margin: 0px 0;
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
         }
 
-        #todaySection,
-        #laterSection,
-        #doneSection {
-            background-color: #fff;
-            border-radius: 4px;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        h2 {
+            font-size: 14px;
+            margin: 0px 0;
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+        }
+
+        #todaySection {
+            display: flex;
+            flex-direction: column;
+            /* align-items: center; */
             padding: 20px;
             margin: 20px auto;
             width: 80%;
+        }
+
+        #laterSection {
+            padding: 20px;
+            margin: 20px auto;
+            width: 80%;
+        }
+
+        #doneSection {
+            padding: 20px;
+            margin: 20px auto;
+            width: 80%;
+            cursor: pointer;
         }
 
         ul {
@@ -41,18 +59,106 @@
         }
 
         li {
-            font-size: 16px;
-            padding: 10px;
+            font-size: 18px;
+            padding: 25px 0px 25px 0px;
             border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        li:hover .buttonContainer{
+            opacity: 1;
         }
 
         button {
             border: none;
             background-color: transparent;
             cursor: pointer;
-            color: #007bff;
+            color: #bdbdbe;
             font-size: 14px;
-            margin-left: 10px;
+            margin: 10px;
+        }
+
+        #addTaskButton {
+            border: none;
+            background-color: transparent;
+            cursor: pointer;
+            color: #afafaf;
+            font-size: 16px;
+            margin-left: -10px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            padding: none;
+            font-family: 'Courier New', Courier, monospace;
+
+        }
+
+        input[type=text] {
+            font-family: 'Courier New', Courier, monospace;
+            width: 50%;
+            height: 40px;
+            padding-left: 0px;
+            font-size: 18px;
+            outline: none;
+            border: none;
+
+        }
+
+        #inputContainer {
+            display: flex;
+            align-items: center;
+            justify-content: start; /* Aligns items to the start of the container */
+            width: 100%; /* Takes full width of the parent */
+            margin-bottom: 10px; /* Optional: Adds some space below the container */
+        }
+
+        #whatInput {
+            font-family: 'Courier New', Courier, monospace;
+            width: 250px;
+            height: auto;
+            min-height: 20px;
+            padding-left: 0px;
+            padding-top: 20px;
+            font-size: 18px;
+            outline: none;
+            border: none;
+            overflow: hidden;
+            resize: none;
+            display: block; 
+            /* width: 50%; */
+            /* flex-grow: 1;  */
+            margin-right: 10px; 
+            caret-color: #bf9efb;
+        }
+
+        #whatInput::placeholder {
+            text-indent: 5px; /* Indents the placeholder text */
+        }
+
+        #buttonContainer {
+            display: flex;
+            gap: 10px; /* Adds space between buttons */
+        }
+
+        #whatSave, #whatCancel {
+            margin-top: 10px; /* Adds space above the buttons */
+            padding: 5px 10px;
+            border: none;
+            background-color: #f5f5f5;
+            cursor: pointer;
+        }
+
+        #whatSave:disabled {
+            color: #bdbebe; /* Greyed-out color for text */
+            background-color: #ffffff; /* Lighter background for disabled state */
+            cursor: not-allowed; /* Change cursor to indicate it's not clickable */
+        }
+
+        #whatSave:not(:disabled) {
+            color: #000000; /* Regular text color when enabled */
+            background-color: #bf9efb; /* Same background as the Cancel button */
+            border-radius: 2px;
         }
 
         button:hover {
@@ -65,27 +171,12 @@
             color: #888;
         }
 
-        .arrowButton {
-            background-color: transparent;
-            border: none;
-            cursor: pointer;
-        }
-
-        .arrow-up::before {
-            content: "↑";
-        }
-
-        .arrow-down::before {
-            content: "↓";
-        }
-
         .liText {
-            display: flex;
-            align-items: center;
+            flex-grow: 1;
         }
 
-        .todayBtStle {
-            margin-left: auto;
+        .todayBtStle, .todayEdit, .todayDelete, .moveLater {
+            margin-left: 10px;
         }
 
         .restore {
@@ -101,6 +192,96 @@
             display: block;
         }
 
-        /* #allDone{
-            display: none;
-        } */
+        .buttonContainer {
+            display: flex;
+            align-items: center;
+            margin-left: auto;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .doneCheckbox {
+            margin-right: 30px;
+        }
+
+        #liText {
+            display: flex;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .fade-out {
+            opacity: 0;
+            transition: opacity 0.5s ease-out;    
+        }
+
+        #calendarSection {
+            max-width: 80%;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        #calendar {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+        }
+        
+        .week {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 5px;
+        }
+        
+        .day {
+            flex: 1;
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: center;
+            min-width: 40px;
+            height: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .has-tasks {
+            background-color: green;
+            color: white;
+        }
+        
+        .day-header {
+            flex: 1;
+            text-align: center;
+            font-weight: bold;
+            padding: 5px;
+            border-bottom: 1px solid #ccc;
+        }
+        
+        .day:not(:has(.date)) {
+            background-color: #f5f5f5;
+        }
+        
+        .month-header {
+            font-size: 20px;
+            text-align: center;
+            margin-top: 40px;
+            margin-bottom: 40px;
+        }
+        
+        .task-count {
+            font-size: 12px;
+            margin: 5px 0;
+        }
+        
+        .date, .task-count {
+            margin-bottom: 5px;
+        }
+        
+        .date {
+            margin-bottom: 5px;
+        }

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="To do list app" content="This app is a new todo list app">
+    <title>Today or Later</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="calendarSection">
+        <h2>Streaks</h2>
+        <div id="calendar"></div> <!-- Calendar will be displayed here -->
+    </div>
+
+    <script>
+        function generateCalendar() {
+            const calendarElement = document.getElementById('calendar');
+            let doneHistory = JSON.parse(localStorage.getItem("doneHistory")) || {};
+
+            for (let i = 0; i < 12; i++) {
+                let monthDate = new Date();
+                monthDate.setMonth(new Date().getMonth() + i, 1); // Set to the first day of each month
+
+                const monthHeader = document.createElement('h3');
+                monthHeader.className = 'month-header';
+                monthHeader.textContent = monthDate.toLocaleString('en-GB', { month: 'long', year: 'numeric' });
+                calendarElement.appendChild(monthHeader);
+
+                // Add headers for days of the week
+                addWeekdayHeaders(calendarElement);
+
+                // Generate calendar for the month
+                generateMonthCalendar(monthDate, calendarElement, doneHistory);
+            }
+        }
+
+        function addWeekdayHeaders(calendarElement) {
+            const weekdays = ['Mon', 'Tues', 'Weds', 'Thurs', 'Fri', 'Sat', 'Sun'];
+            const headerRow = document.createElement('div');
+            headerRow.className = 'week';
+
+            weekdays.forEach(day => {
+                const dayHeader = document.createElement('div');
+                dayHeader.className = 'day-header';
+                dayHeader.textContent = day;
+                headerRow.appendChild(dayHeader);
+            });
+
+            calendarElement.appendChild(headerRow);
+        }
+
+        function generateMonthCalendar(monthDate, calendarElement, doneHistory) {
+            let currentDate = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1);
+
+            while (currentDate.getMonth() === monthDate.getMonth()) {
+                const weekElement = document.createElement('div');
+                weekElement.className = 'week';
+
+                for (let i = 0; i < 7; i++) {
+                    const dayElement = document.createElement('div');
+                    dayElement.className = 'day';
+
+                    if (currentDate.getMonth() === monthDate.getMonth()) {
+                        const dateElement = document.createElement('div');
+                        dateElement.className = 'date';
+                        dateElement.textContent = currentDate.getDate();
+                        dayElement.appendChild(dateElement);
+
+                        const dateString = currentDate.toISOString().split('T')[0];
+                        const tasks = doneHistory[dateString] || [];
+                        if (tasks.length > 0) {
+                            dayElement.classList.add('has-tasks');
+                            const taskElement = document.createElement('div');
+                            taskElement.className = 'task-count';
+                            taskElement.textContent = `${tasks.length} tasks`;
+                            dayElement.appendChild(taskElement);
+                        }
+                    }
+
+                    weekElement.appendChild(dayElement);
+
+                    // Move to next day
+                    currentDate.setDate(currentDate.getDate() + 1);
+                }
+
+                calendarElement.appendChild(weekElement);
+            }
+        }
+
+        window.onload = generateCalendar;
+    </script>
+</body>
+</html>
